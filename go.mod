@@ -5,6 +5,7 @@ go 1.25.0
 require (
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/joho/godotenv v1.5.1
+	github.com/jxskiss/base62 v1.1.0
 	github.com/pressly/goose/v3 v3.27.0
 )
 

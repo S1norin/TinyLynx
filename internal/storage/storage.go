@@ -2,18 +2,17 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"sync"
-	"database/sql"
 	"tinylynx/internal/config"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 )
 
-var conn *pgx.Conn
 var pool *pgxpool.Pool
 var oncePool, onceConn sync.Once
 
@@ -22,23 +21,10 @@ func getDsn() string {
 	return fmt.Sprintf("postgres://%s:%s@db:5432/%s", cfg.DBUser, cfg.DBPassword, "tinylynx")
 }
 
-func GetConn(ctx context.Context) *pgx.Conn {
+func GetPool() *pgxpool.Pool {
 	oncePool.Do(
 		func() {
-			dbConn, err := pgx.Connect(ctx, getDsn())
-			if err != nil {
-				log.Fatalf("storage.go getConn(): Couldn't get connection %v", err)
-			}
-			conn = dbConn
-		})
-	log.Print("storage.go getConn(): Got connection")
-	return conn
-}
-
-func GetPool(ctx context.Context) *pgxpool.Pool {
-	oncePool.Do(
-		func() {
-			dbPool, err := pgxpool.New(ctx, getDsn())
+			dbPool, err := pgxpool.New(context.Background(), getDsn())
 			if err != nil {
 				log.Fatalf("storage.go getPool(): Couldn't get pool %v", err)
 			}
@@ -48,7 +34,8 @@ func GetPool(ctx context.Context) *pgxpool.Pool {
 	return pool
 }
 
-func RunMigrations(ctx context.Context) {
+
+func RunMigrations() {
 	db, err := sql.Open("pgx", getDsn())
 	if err != nil {
 		log.Fatalf("storage.go RunMigrations(): Couldn't get connection %v", err)
@@ -56,9 +43,9 @@ func RunMigrations(ctx context.Context) {
 
 	defer db.Close()
 
-	err = goose.Up(db, "internal/storage")
+	err = goose.Up(db, "internal/storage/migrations")
 	if err != nil {
 		log.Fatalf("storage.go RunMigrations(): Couldn't go up with migration %v", err)
 	}
-	
+
 }

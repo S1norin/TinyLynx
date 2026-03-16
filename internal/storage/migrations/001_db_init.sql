@@ -1,9 +1,9 @@
 -- +goose Up
-CREATE TABLE link (
+CREATE TABLE links (
     id SERIAL PRIMARY KEY,
-    long TEXT NOT NULL,
-    short TEXT NOT NULL,
+    original_link TEXT NOT NULL,
+    short_code TEXT NOT NULL,
 );
 
 -- +goose Down
-DROP TABLE link;
+DROP TABLE links;

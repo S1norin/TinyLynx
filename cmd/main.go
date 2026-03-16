@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"tinylynx/internal/storage"
 )
 
 func main() {
-	fmt.Print("Hallo Everynyan!")
+	storage.RunMigrations()
 }
