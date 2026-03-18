@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"tinylynx/internal/model"
@@ -45,8 +46,9 @@ func checkExistence(ctx context.Context, query string, args ...any) (bool, error
 	return exists, nil
 }
 
-func generateShortCode(ctx context.Context, link string) string {
-	return base62.EncodeToString([]byte(link))
+func generateShortCode(link string) string {
+	h := sha256.Sum256([]byte(link))
+	return base62.EncodeToString(h[:6])
 }
 
 // Public functions
@@ -64,7 +66,7 @@ func GetByOriginalLink(ctx context.Context, link string) (*model.Link, error) {
 	// Create entry if link is not found
 	if !ok {
 		queryInsert := `INSERT INTO links (original_link, short_code) VALUES ($1, $2)`
-		_, err := storage.GetPool().Exec(ctx, queryInsert, link, generateShortCode(ctx, link))
+		_, err := storage.GetPool().Exec(ctx, queryInsert, link, generateShortCode(link))
 		if err != nil {
 			return nil, fmt.Errorf("insesrt values: %w", err)
 		}

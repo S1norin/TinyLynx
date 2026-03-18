@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	DBUser     string
-	DBPassword string
-	DBPort     string
+	DBUser         string
+	DBPassword     string
+	DBPortExposed  string
+	DBName         string
 }
 
 func Load() Config {
@@ -20,22 +21,31 @@ func Load() Config {
 
 	}
 
-	dbUser := os.Getenv(("DB_USER"))
-	if err != nil {
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
 		dbUser = "postgres"
 	}
 
-	dbPassword := os.Getenv(("DB_PASSWORD"))
-	if err != nil {
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
 		dbPassword = "postgres"
 	}
 
-	dbPort := "5433"
+	dBPortExposed := os.Getenv("DB_PORT_EXPOSED")
+	if dBPortExposed == "" {
+		dBPortExposed = "5433"
+	}
+
+	dBName := os.Getenv("DB_NAME")
+	if dBName == "" {
+		dBName = "tinylynx"
+	}
 
 	loadedConfig := Config{
-		DBUser:     dbUser,
-		DBPassword: dbPassword,
-		DBPort:     dbPort,
+		DBUser:         dbUser,
+		DBPassword:     dbPassword,
+		DBPortExposed:  dBPortExposed,
+		DBName:         dBName,
 	}
 
 	return loadedConfig

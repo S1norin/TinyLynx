@@ -13,12 +13,18 @@ services:
       context: .
       target: final
     ports:
-      - 8080:8080
+      - "8080:8080"
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=db
     depends_on:
       db:
         condition: service_healthy
+
   db:
-    image: postgres:18-alpine
+    image: postgres:16-alpine
     container_name: tinylynx-db
     restart: always
     # secrets:
@@ -28,12 +34,11 @@ services:
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=tinylynx
+      - POSTGRES_DB=${DB_NAME}
     ports:
-      - ${DB_PORT}:5432
+      - "${DB_PORT_EXPOSED}:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -p 5432 -d tinylynx" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -p 5432 -d ${DB_NAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5

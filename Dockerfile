@@ -67,6 +67,8 @@ RUN adduser \
     appuser
 USER appuser
 
+COPY ./internal/storage/migrations ./internal/storage/migrations
+
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
 
